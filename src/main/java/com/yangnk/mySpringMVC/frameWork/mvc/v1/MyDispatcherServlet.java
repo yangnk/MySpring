@@ -1,4 +1,4 @@
-package com.yangnk.mySpringMVC.frameWork;
+package com.yangnk.mySpringMVC.frameWork.mvc.v1;
 
 import com.yangnk.mySpringMVC.annotation.MyAutowired;
 import com.yangnk.mySpringMVC.annotation.MyController;

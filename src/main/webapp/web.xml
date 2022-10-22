@@ -7,7 +7,7 @@
     <display-name>My Web Application</display-name>
     <servlet>
         <servlet-name>MySpring1</servlet-name>
-        <servlet-class>com.yangnk.mySpringMVC.frameWork.MyDispatcherServlet</servlet-class>
+        <servlet-class>com.yangnk.mySpringMVC.frameWork.mvc.v2.MyDispatcherServlet</servlet-class>
 
         <init-param>
             <param-name>contextConfigLocation</param-name>

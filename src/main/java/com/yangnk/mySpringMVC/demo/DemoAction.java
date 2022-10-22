@@ -1,9 +1,11 @@
-package com.yangnk.mySpringMVC;
+package com.yangnk.mySpringMVC.demo;
 
 import com.yangnk.mySpringMVC.annotation.MyAutowired;
 import com.yangnk.mySpringMVC.annotation.MyController;
 import com.yangnk.mySpringMVC.annotation.MyRequestMapping;
 import com.yangnk.mySpringMVC.annotation.MyRequestParam;
+import com.yangnk.mySpringMVC.demo.service.DemoService;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -13,14 +15,13 @@ import java.io.IOException;
 @MyRequestMapping("/demo")
 public class DemoAction {
 
-//  	@MyAutowired
-//	private IDemoService demoService;
+  	@MyAutowired
+	private DemoService demoService;
 
 	@MyRequestMapping("/query")
 	public void query(HttpServletRequest req, HttpServletResponse resp,
 					  @MyRequestParam("name") String name){
-//		String result = demoService.get(name);
-//		String result = "My name is " + name;
+		String result = demoService.get(name);
 		try {
 			resp.getWriter().write(name);
 		} catch (IOException e) {
