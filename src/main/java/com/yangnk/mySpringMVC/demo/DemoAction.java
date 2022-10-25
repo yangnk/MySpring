@@ -23,7 +23,7 @@ public class DemoAction {
 					  @MyRequestParam("name") String name){
 		String result = demoService.get(name);
 		try {
-			resp.getWriter().write(name);
+			resp.getWriter().write(result);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -52,6 +52,11 @@ public class DemoAction {
 	@MyRequestMapping("/remove")
 	public String  remove(@MyRequestParam("id") Integer id){
 		return "" + id;
+	}
+
+	public void sayHello() {
+		System.out.println("hello");
+
 	}
 
 }

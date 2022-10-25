@@ -6,13 +6,16 @@ import com.yangnk.mySpringMVC.annotation.MyService;
 import com.yangnk.mySpringMVC.frameWork.ioc.beans.MyBeanDefinition;
 import com.yangnk.mySpringMVC.frameWork.ioc.beans.MyBeanDefinitionReader;
 import com.yangnk.mySpringMVC.frameWork.ioc.beans.MyBeanWrapper;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 @Slf4j
+@Data
 public class MyApplicationContext {
     private MyBeanDefinitionReader beanDefinitionReader;
     private List<MyBeanDefinition> beanDefinitionList;
@@ -24,7 +27,7 @@ public class MyApplicationContext {
         //加载配置文件
         beanDefinitionReader = new MyBeanDefinitionReader(configLocation);
         //解析配置文件
-        beanDefinitionList = beanDefinitionReader.loadBeanDefinition();
+        beanDefinitionList = beanDefinitionReader.loadBeanDefinition();//todo
         try {
             //缓存到beanDefinitionMap中
             doRegistryBeanDefinition(beanDefinitionList);
@@ -37,12 +40,12 @@ public class MyApplicationContext {
 
     private void doAutowired() {
         //由配置阶段到实例化阶段
-        for (Map.Entry<String, MyBeanDefinition> entry : beanDefinitionMap.entrySet()) {
-            getBean(entry.getKey());
+        for (MyBeanDefinition entry : beanDefinitionList) {
+            getBean(entry.getBeanClassName());
         }
     }
 
-    private void getBean(String beanName) {
+    public Object getBean(String beanName) {
         //获取配置信息
         MyBeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
         //实例化
@@ -53,6 +56,8 @@ public class MyApplicationContext {
         factoryBeanInstanceCache.put(beanName, beanWrapper);
         //依赖注入
         populateBean(beanWrapper);
+        //返回实例
+        return beanWrapper.getWrapperInstance();
     }
 
     private void populateBean(MyBeanWrapper beanWrapper) {
@@ -89,6 +94,7 @@ public class MyApplicationContext {
         Object instance = null;
         try {
             Class<?> clazz = Class.forName(className);
+            log.info(">>>111.className:{}>>>",className);
             instance = clazz.newInstance();
             factoryBeanObjectCache.put(beanName, instance);
             log.info("===factoryBeanObjectCache put factoryBeanObjectCache:{} ===", beanName);
@@ -103,8 +109,11 @@ public class MyApplicationContext {
             if (beanDefinitionMap.containsKey(beanDefinition.getSimleBeanName())) {
                 throw new Exception(beanDefinition.getSimleBeanName() + " beanName has exist.");
             }
-            beanDefinitionMap.put(beanDefinition.getSimleBeanName(), beanDefinition);
+//            beanDefinitionMap.put(beanDefinition.getSimleBeanName(), beanDefinition);
             beanDefinitionMap.put(beanDefinition.getBeanClassName(), beanDefinition);
         }
+    }
+    public Properties getConfig() {
+        return this.beanDefinitionReader.getConfig();
     }
 }

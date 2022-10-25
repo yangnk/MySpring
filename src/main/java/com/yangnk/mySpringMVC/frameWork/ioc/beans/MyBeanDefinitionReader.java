@@ -1,5 +1,7 @@
 package com.yangnk.mySpringMVC.frameWork.ioc.beans;
 
+import com.yangnk.mySpringMVC.annotation.MyController;
+import com.yangnk.mySpringMVC.annotation.MyService;
 import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.IOException;
@@ -63,6 +65,12 @@ public class MyBeanDefinitionReader {
             try {
                 //获取Clazz
                 Class<?> clazz = Class.forName(className);
+
+                //加了注解@MyController和@MyService 放入到List<MyBeanDefinition> 中
+                if (!(clazz.isAnnotationPresent(MyController.class) || clazz.isAnnotationPresent(MyService.class))) {
+                    continue;
+                }
+
                 //组装BeanDefinition
                 MyBeanDefinition beanDefinition = new MyBeanDefinition();
                 beanDefinition.setSimleBeanName(toLowerFirstCase(clazz.getSimpleName()));
@@ -80,5 +88,10 @@ public class MyBeanDefinitionReader {
         char [] chars = simpleName.toCharArray();
         chars[0] += 32;
         return String.valueOf(chars);
+    }
+
+
+    public Properties getConfig() {
+        return this.propertiesConfig;
     }
 }
