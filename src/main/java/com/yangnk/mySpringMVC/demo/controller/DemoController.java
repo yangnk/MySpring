@@ -1,4 +1,4 @@
-package com.yangnk.mySpringMVC.demo;
+package com.yangnk.mySpringMVC.demo.controller;
 
 import com.yangnk.mySpringMVC.annotation.MyAutowired;
 import com.yangnk.mySpringMVC.annotation.MyController;
@@ -13,7 +13,7 @@ import java.io.IOException;
 
 @MyController
 @MyRequestMapping("/demo")
-public class DemoAction {
+public class DemoController {
 
   	@MyAutowired
 	private DemoService demoService;

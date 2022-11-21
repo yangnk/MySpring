@@ -3,6 +3,9 @@ package com.yangnk.mySpringMVC.frameWork.ioc.context;
 import com.yangnk.mySpringMVC.annotation.MyAutowired;
 import com.yangnk.mySpringMVC.annotation.MyController;
 import com.yangnk.mySpringMVC.annotation.MyService;
+import com.yangnk.mySpringMVC.frameWork.aop.MyAdvicedSupport;
+import com.yangnk.mySpringMVC.frameWork.aop.MyAopConfig;
+import com.yangnk.mySpringMVC.frameWork.aop.MyJdkDynamicAopProxy;
 import com.yangnk.mySpringMVC.frameWork.ioc.beans.MyBeanDefinition;
 import com.yangnk.mySpringMVC.frameWork.ioc.beans.MyBeanDefinitionReader;
 import com.yangnk.mySpringMVC.frameWork.ioc.beans.MyBeanWrapper;
@@ -94,8 +97,23 @@ public class MyApplicationContext {
         Object instance = null;
         try {
             Class<?> clazz = Class.forName(className);
-            log.info(">>>111.className:{}>>>",className);
             instance = clazz.newInstance();
+
+            //===aop start===
+
+            //初始化aop配置文件
+            MyAdvicedSupport advicedSupport = initAopConfig(beanDefinition);
+            advicedSupport.setTarget(instance);
+            advicedSupport.setTargetClass(clazz);
+
+            //判断是否需要aop
+            if (advicedSupport.pointCutClassMatch()) {
+                //通过jdk动态代理生成新实例
+                instance = new MyJdkDynamicAopProxy(advicedSupport).getProxy();
+            }
+
+            //===aop end===
+
             factoryBeanObjectCache.put(beanName, instance);
             log.info("===factoryBeanObjectCache put factoryBeanObjectCache:{} ===", beanName);
         } catch (Exception e) {
@@ -103,13 +121,26 @@ public class MyApplicationContext {
         }
         return instance;
     }
+
+    private MyAdvicedSupport initAopConfig(MyBeanDefinition beanDefinition) {
+        MyAopConfig aopConfig = new MyAopConfig();
+
+        aopConfig.setPointCut(this.beanDefinitionReader.getConfig().getProperty("pointCut"));
+        aopConfig.setAspectAfterThrowingName(this.beanDefinitionReader.getConfig().getProperty("aspectAfterThrowingName"));
+        aopConfig.setAspectBefore(this.beanDefinitionReader.getConfig().getProperty("aspectBefore"));
+        aopConfig.setAspectAfter(this.beanDefinitionReader.getConfig().getProperty("aspectAfter"));
+        aopConfig.setAspectAfterThrowingName(this.beanDefinitionReader.getConfig().getProperty("aspectAfterThrow"));
+        aopConfig.setAspectClass(this.beanDefinitionReader.getConfig().getProperty("aspectClass"));
+
+        return new MyAdvicedSupport(aopConfig);
+    }
+
     private void doRegistryBeanDefinition(List<MyBeanDefinition> beanDefinitionList) throws Exception {
         //将beanDefinitionList保存到beanDefinitionMap中保存
         for (MyBeanDefinition beanDefinition : beanDefinitionList) {
             if (beanDefinitionMap.containsKey(beanDefinition.getSimleBeanName())) {
                 throw new Exception(beanDefinition.getSimleBeanName() + " beanName has exist.");
             }
-//            beanDefinitionMap.put(beanDefinition.getSimleBeanName(), beanDefinition);
             beanDefinitionMap.put(beanDefinition.getBeanClassName(), beanDefinition);
         }
     }

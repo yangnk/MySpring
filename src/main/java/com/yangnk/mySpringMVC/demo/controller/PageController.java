@@ -1,4 +1,4 @@
-package com.yangnk.mySpringMVC.demo;
+package com.yangnk.mySpringMVC.demo.controller;
 
 import com.yangnk.mySpringMVC.annotation.MyController;
 import com.yangnk.mySpringMVC.annotation.MyRequestMapping;
@@ -16,7 +16,7 @@ import java.util.Map;
  */
 @MyController
 @MyRequestMapping("/")
-public class PageAction {
+public class PageController {
 
 //    @MyAutowired
 //    IQueryService queryService;
