@@ -4,7 +4,11 @@
 	<groupId>com.yangnk.myspringmvc</groupId>
 	<artifactId>MySpringMVC1</artifactId>
 	<version>1.0</version>
-	<packaging>war</packaging>
+	<modules>
+		<module>MyORM</module>
+		<module>MySpring</module>
+	</modules>
+	<packaging>pom</packaging>
 
 	<properties>
 		<!-- dependency versions -->
@@ -13,6 +17,19 @@
 
 
 	<dependencies>
+		<dependency>
+			<groupId>javax.persistence</groupId>
+			<artifactId>persistence-api</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+		<!-- jdbc driver start -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.28</version>
+		</dependency>
+		<!-- jdbc driver end -->
 
 		<!--lombok start-->
 		<dependency>
