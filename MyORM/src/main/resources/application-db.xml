@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="datasourcePool" abstract="true" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <property name="initialSize" value="${dbPool.initialSize}" />
+        <property name="minIdle" value="${dbPool.minIdle}" />
+        <property name="maxActive" value="${dbPool.maxActive}" />
+        <property name="maxWait" value="${dbPool.maxWait}" />
+        <property name="timeBetweenEvictionRunsMillis" value="${dbPool.timeBetweenEvictionRunsMillis}" />
+        <property name="minEvictableIdleTimeMillis" value="${dbPool.minEvictableIdleTimeMillis}" />
+        <property name="validationQuery" value="${dbPool.validationQuery}" />
+        <property name="testWhileIdle" value="${dbPool.testWhileIdle}" />
+        <property name="testOnBorrow" value="${dbPool.testOnBorrow}" />
+        <property name="testOnReturn" value="${dbPool.testOnReturn}" />
+        <property name="poolPreparedStatements" value="${dbPool.poolPreparedStatements}" />
+        <property name="maxPoolPreparedStatementPerConnectionSize" value="${dbPool.maxPoolPreparedStatementPerConnectionSize}" />
+        <property name="filters" value="${dbPool.filters}" />
+    </bean>
+
+    <bean id="dataSource2" parent="datasourcePool">
+        <property name="driverClassName" value="${db2.mysql.jdbc.driverClassName}" />
+        <property name="url" value="${db2.mysql.jdbc.url}" />
+        <property name="username" value="${db2.mysql.jdbc.username}" />
+        <property name="password" value="${db2.mysql.jdbc.password}" />
+    </bean>
+
+    <bean id="dataSource1" parent="datasourcePool">
+        <property name="driverClassName" value="${db1.mysql.jdbc.driverClassName}" />
+        <property name="url" value="${db1.mysql.jdbc.url}" />
+        <property name="username" value="${db1.mysql.jdbc.username}" />
+        <property name="password" value="${db1.mysql.jdbc.password}" />
+    </bean>
+
+    <bean id="dynamicDataSourceEntry"  class="com.yangnk.framework.dataSource.DynamicDataSourceEntry" />
+    <bean id="dynamicDataSource" class="com.yangnk.framework.dataSource.DynamicDataSource" >
+        <property name="dataSourceEntry" ref="dynamicDataSourceEntry"></property>
+        <property name="targetDataSources">
+            <map>
+                <entry key="DB_1" value-ref="dataSource1"></entry>
+                <entry key="DB_2" value-ref="dataSource2"></entry>
+            </map>
+        </property>
+        <property name="defaultTargetDataSource" ref="dataSource1" />
+    </bean>
+</beans>
