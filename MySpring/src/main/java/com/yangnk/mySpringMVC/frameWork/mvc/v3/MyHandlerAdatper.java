@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class MyHandlerAdatper {
     public MyModelAndView getHandler(HttpServletRequest req, HttpServletResponse resp, MyHandlerMapping handlerMapping) throws InvocationTargetException, IllegalAccessException {
-        //根据handlerAdatper获取传入参数和位置-->从req中后去参数key和value-->通过反射调用，将返回值放入resp中
+        //根据handlerAdatper获取传入参数和位置
         Map<String,Integer> paramIndexMapping = new HashMap<String, Integer>();
 
         Annotation[] [] pa = handlerMapping.getMethod().getParameterAnnotations();
@@ -27,6 +27,7 @@ public class MyHandlerAdatper {
             }
         }
 
+        //从req中去取参数key和value
         Class<?> [] paramTypes = handlerMapping.getMethod().getParameterTypes();
         for (int i = 0; i < paramTypes.length; i++) {
             Class<?> paramterType = paramTypes[i];
@@ -61,10 +62,11 @@ public class MyHandlerAdatper {
             paramValues[index] = resp;
         }
 
+        //通过反射调用，返回值组装成model
         Object result = handlerMapping.getMethod().invoke(handlerMapping.getController(),paramValues);
         if(result == null || result instanceof Void){return null;}
 
-        boolean isModelAndView = handlerMapping.getMethod().getReturnType() == MyModelAndView.class;
+        boolean isModelAndView = (handlerMapping.getMethod().getReturnType() == MyModelAndView.class);
         if(isModelAndView){
             return (MyModelAndView)result;
         }

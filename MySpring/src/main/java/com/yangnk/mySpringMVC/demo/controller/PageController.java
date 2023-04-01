@@ -18,16 +18,11 @@ import java.util.Map;
 @MyRequestMapping("/")
 public class PageController {
 
-//    @MyAutowired
-//    IQueryService queryService;
-
     @MyRequestMapping("/first.html")
     public MyModelAndView query(@MyRequestParam("name") String name){
-//        String result = queryService.query(teacher);
         Map<String,Object> model = new HashMap<String,Object>();
         model.put("name", name);
         model.put("data", new Date().toString());
-//        model.put("token", "123456");
         return new MyModelAndView("first.html",model);
     }
 }

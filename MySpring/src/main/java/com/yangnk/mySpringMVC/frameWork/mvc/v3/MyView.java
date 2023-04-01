@@ -30,7 +30,7 @@ public class MyView {
             while (matcher.find()){
                 String paramName = matcher.group();
                 paramName = paramName.replaceAll("￥\\{|\\}","");
-                log.info(">>>222 paramName:{} >>>",paramName);
+                log.info("===view paramName is:{} ===",paramName);
                 Object paramValue = model.get(paramName);
                 line = matcher.replaceFirst(makeStringForRegExp(paramValue.toString()));
                 matcher = pattern.matcher(line);

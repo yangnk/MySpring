@@ -33,7 +33,7 @@ public class MyDispatcherServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            log.info("=== doPost start... ===");
+            log.info("=== doPost start===");
             doDispatch(req, resp);
         } catch (Exception e) {
             try {
@@ -70,11 +70,15 @@ public class MyDispatcherServlet extends HttpServlet {
     }
 
     private void processDispatchResult(HttpServletRequest req, HttpServletResponse resp, MyModelAndView modelAndView) throws Exception {
-        if(null == modelAndView){return;}
-        if(this.viewResolverList.isEmpty()){return;}
+        if (null == modelAndView || this.viewResolverList.isEmpty()) {
+            return;
+        }
 
         for (MyViewResolver viewResolver : this.viewResolverList) {
             MyView view = viewResolver.resolveViewName(modelAndView.getViewName());
+            if (view == null) {
+                continue;
+            }
             //直接往浏览器输出
             view.render(modelAndView.getModel(),req,resp);
             return;
@@ -87,7 +91,7 @@ public class MyDispatcherServlet extends HttpServlet {
         String url = req.getRequestURI();
         String contextPath = req.getContextPath();
         url = url.replaceAll(contextPath,"").replaceAll("/+","/");
-        url = "////first.html"; //todo 正则匹配不对，这个写死测试。需要修改
+//        url = "////first.html";
         for (MyHandlerMapping mapping : handlerMappingList) {
             Matcher matcher = mapping.getPattern().matcher(url);
             if(!matcher.matches()){continue;}
@@ -98,9 +102,10 @@ public class MyDispatcherServlet extends HttpServlet {
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-        //初始化IoC容器-->初始化mvc基础组件
+        //初始化IoC容器
         applicationContext = new MyApplicationContext(config.getInitParameter("contextConfigLocation"));
 
+        //初始化mvc基础组件
         initStrategies(applicationContext);
 
         log.info("MyDispatcherServlet init success.");
@@ -108,20 +113,22 @@ public class MyDispatcherServlet extends HttpServlet {
     }
 
     private void initStrategies(MyApplicationContext applicationContext) {
-        //初始化handlerMapping-->初始化handlerAdapter-->初始化viewResolver
+        //初始化handlerMapping
         initHandlerMapping(applicationContext);
+        //初始化handlerAdapter
         initHandlerAdapter(applicationContext);
+        //初始化viewResolver
         initViewResolver(applicationContext);
     }
 
     //将模板文件放到ViewResolver中
     private void initViewResolver(MyApplicationContext applicationContext) {
         String templateRoot = applicationContext.getConfig().getProperty("templateRoot");
-        String templateRootPath = getClass().getClassLoader().getResource(templateRoot).getFile();
+        String templateRootPath = this.getClass().getClassLoader().getResource(templateRoot).getFile();
 
         File templateRootDir = new File(templateRootPath);
         for (File file : templateRootDir.listFiles()) {
-            this.viewResolverList.add(new MyViewResolver(templateRoot));
+            this.viewResolverList.add(new MyViewResolver(templateRoot, file));
         }
     }
 
@@ -131,8 +138,6 @@ public class MyDispatcherServlet extends HttpServlet {
                 handlerMappingList) {
             handlerAdapterMap.put(handlerMapping, new MyHandlerAdatper());
         }
-
-
     }
 
     private void initHandlerMapping(MyApplicationContext applicationContext) {
@@ -158,8 +163,9 @@ public class MyDispatcherServlet extends HttpServlet {
                     continue;
                 }
                 MyRequestMapping requestMapping = method.getAnnotation(MyRequestMapping.class);
-                String regex = "/" + baseUrl + "/" + requestMapping.value().replaceAll("\\*", ".*")
-                        .replaceAll("/+", "/");
+//                String regex = "/" + baseUrl + "/" + requestMapping.value().replaceAll("\\*", ".*")
+//                        .replaceAll("/+", "/");
+                String regex = requestMapping.value().replaceAll("\\*", ".*").replaceAll("/+", "/");
                 Pattern pattern = Pattern.compile(regex);
                 handlerMappingList.add(new MyHandlerMapping(pattern, method, bean));
             }

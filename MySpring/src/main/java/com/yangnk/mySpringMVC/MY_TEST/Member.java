@@ -1,4 +1,4 @@
-package com.yangnk.mySpringMVC.test;
+package com.yangnk.mySpringMVC.MY_TEST;
 
 import lombok.Data;
 

@@ -10,6 +10,8 @@ import com.yangnk.mySpringMVC.frameWork.ioc.beans.MyBeanDefinition;
 import com.yangnk.mySpringMVC.frameWork.ioc.beans.MyBeanDefinitionReader;
 import com.yangnk.mySpringMVC.frameWork.ioc.beans.MyBeanWrapper;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -18,7 +20,8 @@ import java.util.Map;
 import java.util.Properties;
 
 @Slf4j
-@Data
+@Getter
+@Setter
 public class MyApplicationContext {
     private MyBeanDefinitionReader beanDefinitionReader;
     private List<MyBeanDefinition> beanDefinitionList;
@@ -27,37 +30,37 @@ public class MyApplicationContext {
     private Map<String,MyBeanWrapper> factoryBeanInstanceCache = new HashMap<String, MyBeanWrapper>();
 
     public MyApplicationContext(String configLocation) {
-        //加载配置文件
+        //1.加载配置文件
         beanDefinitionReader = new MyBeanDefinitionReader(configLocation);
-        //解析配置文件
-        beanDefinitionList = beanDefinitionReader.loadBeanDefinition();//todo
+        //2.解析配置文件
+        beanDefinitionList = beanDefinitionReader.loadBeanDefinition();
         try {
-            //缓存到beanDefinitionMap中
+            //3.缓存到beanDefinitionMap中
             doRegistryBeanDefinition(beanDefinitionList);
-            //依赖注入
-            doAutowired();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        //4.依赖注入
+        doAutowired();
     }
 
     private void doAutowired() {
-        //由配置阶段到实例化阶段
+        //由bean的注册阶段到实例化阶段
         for (MyBeanDefinition entry : beanDefinitionList) {
             getBean(entry.getBeanClassName());
         }
     }
 
     public Object getBean(String beanName) {
-        //获取配置信息
+        //1.获取配置信息
         MyBeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
-        //实例化
+        //2.实例化
         Object instance = instantiateBean(beanDefinition, beanName);
-        //实例化后的instance封装成BeanWrapper
+        //3.实例化后的instance封装成BeanWrapper
         MyBeanWrapper beanWrapper = new MyBeanWrapper(instance);
-        //beanWrapper保存到IoC中
+        //4.beanWrapper保存到IoC中
         factoryBeanInstanceCache.put(beanName, beanWrapper);
-        //依赖注入
+        //5.依赖注入
         populateBean(beanWrapper);
         //返回实例
         return beanWrapper.getWrapperInstance();
@@ -99,20 +102,20 @@ public class MyApplicationContext {
             Class<?> clazz = Class.forName(className);
             instance = clazz.newInstance();
 
-            //===aop start===
-
-            //初始化aop配置文件
-            MyAdvicedSupport advicedSupport = initAopConfig(beanDefinition);
-            advicedSupport.setTarget(instance);
-            advicedSupport.setTargetClass(clazz);
-
-            //判断是否需要aop
-            if (advicedSupport.pointCutClassMatch()) {
-                //通过jdk动态代理生成新实例
-                instance = new MyJdkDynamicAopProxy(advicedSupport).getProxy();
-            }
-
-            //===aop end===
+//            //===aop start===
+//
+//            //初始化aop配置文件
+//            MyAdvicedSupport advicedSupport = initAopConfig(beanDefinition);
+//            advicedSupport.setTarget(instance);
+//            advicedSupport.setTargetClass(clazz);
+//
+//            //判断是否需要aop
+//            if (advicedSupport.pointCutClassMatch()) {
+//                //通过jdk动态代理生成新实例
+//                instance = new MyJdkDynamicAopProxy(advicedSupport).getProxy();
+//            }
+//
+//            //===aop end===
 
             factoryBeanObjectCache.put(beanName, instance);
             log.info("===factoryBeanObjectCache put factoryBeanObjectCache:{} ===", beanName);
@@ -124,7 +127,6 @@ public class MyApplicationContext {
 
     private MyAdvicedSupport initAopConfig(MyBeanDefinition beanDefinition) {
         MyAopConfig aopConfig = new MyAopConfig();
-
         aopConfig.setPointCut(this.beanDefinitionReader.getConfig().getProperty("pointCut"));
         aopConfig.setAspectAfterThrowingName(this.beanDefinitionReader.getConfig().getProperty("aspectAfterThrowingName"));
         aopConfig.setAspectBefore(this.beanDefinitionReader.getConfig().getProperty("aspectBefore"));

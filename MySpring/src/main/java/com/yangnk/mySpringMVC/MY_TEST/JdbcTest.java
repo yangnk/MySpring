@@ -1,4 +1,4 @@
-package com.yangnk.mySpringMVC.test;
+package com.yangnk.mySpringMVC.MY_TEST;
 
 import javax.persistence.Column;
 import javax.persistence.Table;

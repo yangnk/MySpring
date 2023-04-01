@@ -25,7 +25,7 @@ public class MyBeanDefinitionReader {
 
     private void doScanner(String scanPackage) {
         URL url = this.getClass().getClassLoader().getResource("/" + scanPackage.replaceAll("\\.","/"));
-        log.info(">>> doScanner url is :{} >>>", url);
+        log.info("=== doScanner url is :{} ===", url);
         File classDir = new File(url.getFile());
         for (File file : classDir.listFiles()) {
             if (file.isDirectory()) {
@@ -41,6 +41,10 @@ public class MyBeanDefinitionReader {
         }
     }
 
+    /**
+     *
+     * @param configLocation
+     */
     private void doLoadConfig(String configLocation) {
         InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(configLocation.replaceAll("classpath:", ""));
         try {
@@ -73,8 +77,11 @@ public class MyBeanDefinitionReader {
 
                 //组装BeanDefinition
                 MyBeanDefinition beanDefinition = new MyBeanDefinition();
-                beanDefinition.setSimleBeanName(toLowerFirstCase(clazz.getSimpleName()));
-                beanDefinition.setBeanClassName(clazz.getName());
+                String lowerFirstCase = toLowerFirstCase(clazz.getSimpleName());
+                String beanClassName = clazz.getName();
+                beanDefinition.setSimleBeanName(lowerFirstCase);
+                beanDefinition.setBeanClassName(beanClassName);
+                log.info("===registryBeanClass is:{} simpleName is：{}，BeanClassName is：{} ===", className, lowerFirstCase, clazz.getName());
                 //放到list返回
                 result.add(beanDefinition);
             } catch (ClassNotFoundException e) {

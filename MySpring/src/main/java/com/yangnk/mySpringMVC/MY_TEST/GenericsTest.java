@@ -1,4 +1,4 @@
-package com.yangnk.mySpringMVC.test;
+package com.yangnk.mySpringMVC.MY_TEST;
 
 public class GenericsTest<T> {
     T t;
