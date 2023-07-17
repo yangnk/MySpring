@@ -4,8 +4,7 @@ import com.yangnk.mySpringMVC.frameWork.annotation.MyAutowired;
 import com.yangnk.mySpringMVC.frameWork.annotation.MyController;
 import com.yangnk.mySpringMVC.frameWork.annotation.MyRequestMapping;
 import com.yangnk.mySpringMVC.frameWork.annotation.MyRequestParam;
-import com.yangnk.mySpringMVC.demo.service.DemoService;
-
+import com.yangnk.mySpringMVC.demo.service.PageService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -16,14 +15,15 @@ import java.io.IOException;
 public class DemoController {
 
   	@MyAutowired
-	private DemoService demoService;
+	private PageService pageService;
 
 	@MyRequestMapping("/query")
 	public void query(HttpServletRequest req, HttpServletResponse resp,
 					  @MyRequestParam("name") String name){
-		String result = demoService.get(name);
+//		String result = pageService.get(name);
 		try {
-			resp.getWriter().write(result);
+//			resp.getWriter().write(result);
+			resp.getWriter().write("result");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

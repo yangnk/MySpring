@@ -3,6 +3,7 @@ package com.yangnk.mySpringMVC.frameWork.aop;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Map;
@@ -17,21 +18,30 @@ public class MyJdkDynamicAopProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        log.info(">>> invoke proxy:{}, method:{}, args:{}>>>>", proxy.toString(), method.toString(), args.toString());
-        Map<String, MyAdvice> advice = advicedSupport.getAdvice(method);
-        Object instance = null;
+        log.info("=== invoke proxy:{}, method:{}, args:{}===", proxy.toString(), method.toString(), args.toString());
+        Map<String,MyAdvice> advices = advicedSupport.getAdvices(method,null);//advices
+
+        Object returnValue;
         try {
-            MyAdvice before = advice.get("before");
-            before.getAdviceMethod().invoke(before.getAspect());
-            instance = method.invoke(this.advicedSupport.getTarget(),args);
-            MyAdvice after = advice.get("after");
-            after.getAdviceMethod().invoke(after.getAspect());
-        } catch (Exception e) {
-            MyAdvice afterThrow = advice.get("afterThrow");
-            afterThrow.getAdviceMethod().invoke(afterThrow.getAspect(), args);
+            invokeAdivce(advices.get("before"));
+            returnValue = method.invoke(this.advicedSupport.getTarget(),args);
+            invokeAdivce(advices.get("after"));
+        }catch (Exception e){
+            invokeAdivce(advices.get("afterThrow"));
+            throw e;
+        }
+
+        return returnValue;
+    }
+
+    private void invokeAdivce(MyAdvice advice) {
+        try {
+            advice.getAdviceMethod().invoke(advice.getAspect());
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
-        return instance;
     }
 
     public Object getProxy() {

@@ -102,20 +102,20 @@ public class MyApplicationContext {
             Class<?> clazz = Class.forName(className);
             instance = clazz.newInstance();
 
-//            //===aop start===
-//
-//            //初始化aop配置文件
-//            MyAdvicedSupport advicedSupport = initAopConfig(beanDefinition);
-//            advicedSupport.setTarget(instance);
-//            advicedSupport.setTargetClass(clazz);
-//
-//            //判断是否需要aop
-//            if (advicedSupport.pointCutClassMatch()) {
-//                //通过jdk动态代理生成新实例
-//                instance = new MyJdkDynamicAopProxy(advicedSupport).getProxy();
-//            }
-//
-//            //===aop end===
+            //===aop start===
+
+            //初始化aop配置文件
+            MyAdvicedSupport advicedSupport = initAopConfig(beanDefinition);
+            advicedSupport.setTargetClass(clazz);
+            advicedSupport.setTarget(instance);
+
+            //判断是否需要aop
+            if (advicedSupport.pointCutClassMatch()) {
+                //通过jdk动态代理生成新实例
+                instance = new MyJdkDynamicAopProxy(advicedSupport).getProxy();
+            }
+
+            //===aop end===
 
             factoryBeanObjectCache.put(beanName, instance);
             log.info("===factoryBeanObjectCache put factoryBeanObjectCache:{} ===", beanName);

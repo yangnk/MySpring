@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Data
 @Slf4j
 public class MyAdvicedSupport {
     private MyAopConfig aopConfig;
@@ -21,26 +20,38 @@ public class MyAdvicedSupport {
         this.aopConfig = aopConfig;
     }
 
-    public Map<String, MyAdvice> getAdvice(Method method) {
-        Map<String, MyAdvice> adviceMap = adviceCache.get(method);
-        //会存在找不到的问题吗？
+//    public Map<String, MyAdvice> getAdvice(Method method) {
+//        Map<String, MyAdvice> adviceMap = adviceCache.get(method);
+//        //会存在找不到的问题吗？
+//
+////        if (adviceMap == null) {
+////            try {
+////                Method method1 = targetClass.getMethod(method.getName(), method.getParameterTypes());
+////                Map<String, MyAdvice> myAdviceMap = adviceCache.get(method1);
+////                adviceCache.put(method1, myAdviceMap);
+////            } catch (NoSuchMethodException e) {
+////                e.printStackTrace();
+////            }
+////        }
+//        return adviceMap;
+//    }
 
-//        if (adviceMap == null) {
-//            try {
-//                Method method1 = targetClass.getMethod(method.getName(), method.getParameterTypes());
-//                Map<String, MyAdvice> myAdviceMap = adviceCache.get(method1);
-//                adviceCache.put(method1, myAdviceMap);
-//            } catch (NoSuchMethodException e) {
-//                e.printStackTrace();
-//            }
-//        }
-        return adviceMap;
+    //根据一个目标代理类的方法，获得其对应的通知
+    public Map<String,MyAdvice> getAdvices(Method method, Object o) throws Exception {
+        //享元设计模式的应用
+        Map<String,MyAdvice> cache = adviceCache.get(method);
+        if(null == cache){
+            Method m = targetClass.getMethod(method.getName(),method.getParameterTypes());
+            cache = adviceCache.get(m);
+            this.adviceCache.put(m,cache);
+        }
+        return cache;
     }
 
     //判断是否需要aop，切点和目标类进行匹配
     public boolean pointCutClassMatch() {
 //        String s = "class com.yangnk.mySpringMVC.demo.";
-//        return pointCutClassPattern.matcher(s).matches();//todo
+//        return pointCutClassPattern.matcher(s).matches();
         return pointCutClassPattern.matcher(this.targetClass.toString()).matches();
     }
 
@@ -101,4 +112,17 @@ public class MyAdvicedSupport {
         this.targetClass = targetClass;
         initParse();
     }
+
+    public void setTarget(Object target) {
+        this.target = target;
+    }
+
+    public Object getTarget() {
+        return target;
+    }
+
+    public Class getTargetClass() {
+        return targetClass;
+    }
+
 }
